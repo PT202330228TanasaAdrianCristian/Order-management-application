@@ -11,9 +11,21 @@ import com.adi.Models.OrderModel;
 import com.adi.Models.ProductModel;
 
 import BusinessLogic.BusinessLogic;
+import com.mysql.cj.xdevapi.Client;
 
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
+/**
+ *
+ Clasa” MainWindow” este clasa principală a aplicației și reprezintă fereastra principală a interfeței utilizator. Această clasă gestionează acțiunile utilizatorului și interacțiunea cu celelalte ferestre/dialoguri din aplicație.
+ Atributele clasei includ:
+ mainFrame: obiectul JFrame reprezentând fereastra principală a aplicației.
+ businessLogic: obiectul BusinessLogic care conține logica de afaceri a aplicației.
+ Elemente de interfață utilizator: etichete, butoane și casete de dialog pentru ferestrele de clienti (ClientDialog), produse (ProductDialog) și comenzi (OrdersDialog).
+
+ */
 public class MainWindow {
 
     public JFrame mainFrame;
@@ -51,7 +63,26 @@ public class MainWindow {
         ordersWindowLabel = new JLabel("Go to orders window");
 
         clientWindowButton = new JButton("Open client dialog");
-        clientWindowButton.setBounds(25, 50, 50, 50);
+        clientWindowButton.setBounds(300, 0, 150, 50);
+
+        clientWindow.getMenuView().addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent menuEvent) {
+
+                List<ClientModel> lstClients = businessLogic.getClients();
+                clientWindow.setClients(lstClients);
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent menuEvent) {
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent menuEvent) {
+
+            }
+        });
         clientWindowButton.addActionListener(new ActionListener () {
 
             @Override
@@ -63,8 +94,6 @@ public class MainWindow {
                         while this window is opened, the main Frame will be disabled and not in focus.
                         This object handles the client operations
                     */
-                    List<ClientModel> clientModelsInDatabase = businessLogic.getClients();
-                    clientWindow.setClients(clientModelsInDatabase);
                     showMenu(clientWindow);
                 }
                 catch(Exception err)
@@ -75,26 +104,37 @@ public class MainWindow {
         });
 
         productWindowButton = new JButton("Product");
-        productWindowButton.setBounds(0, 0, 50, 50);
+        productWindowButton.setBounds(0, 0, 150, 50);
         productWindowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<ProductModel> lstProducts = businessLogic.getProducts();
-                productWindow.setProducts(lstProducts);
                 showMenu(productWindow);
             }
         });
 
+        productWindow.getViewMenu().addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent menuEvent) {
+                List<ProductModel> lstProductModel = businessLogic.getProducts();
+                productWindow.setProducts(lstProductModel);
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent menuEvent) {
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent menuEvent) {
+
+            }
+        });
+
         ordersWindowButton = new JButton("Orders");
-        ordersWindowButton.setBounds(25, 150, 50, 50);
+        ordersWindowButton.setBounds(150, 0, 150, 50);
         ordersWindowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<ClientModel> lstClients = businessLogic.getClients();
-                List<ProductModel> lstProducts = businessLogic.getProducts();
-
-                ordersWindow.setClients(lstClients);
-                ordersWindow.setProducts(lstProducts);
                 showMenu(ordersWindow);
             }
         });
@@ -164,7 +204,6 @@ public class MainWindow {
         };
         clientWindow.getButtonSubmitDelete().addActionListener(deleteClientActionListener);
 
-
         productWindow.getButtonSubmitCreate().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -204,7 +243,25 @@ public class MainWindow {
                 businessLogic.editProduct(edtProductModel);
             }
         });
+        ordersWindow.getViewMenu().addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent menuEvent) {
+                List<ProductModel> lstProductModel = businessLogic.getProducts();
+                List<ClientModel> lstClientModel = businessLogic.getClients();
+                    ordersWindow.setClients(lstClientModel);
+                    ordersWindow.setProducts(lstProductModel);
+            }
 
+            @Override
+            public void menuDeselected(MenuEvent menuEvent) {
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent menuEvent) {
+
+            }
+        });
         ordersWindow.getButtomSubmitCreate().addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e)
@@ -223,6 +280,27 @@ public class MainWindow {
             }
         });
 
+        ordersWindow.getViewOrders().addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent menuEvent) {
+                    List<OrderModel> lstOrders = businessLogic.getOrders();
+                    ordersWindow.setOrders(lstOrders);
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent menuEvent) {
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent menuEvent) {
+
+            }
+        });
+
+        JLabel titleLabel = new JLabel("Main Component");
+        titleLabel.setBounds(250, 180, 100, 50);
+        mainFrame.add(titleLabel);
         mainFrame.setBounds(500, 500, 500, 500);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setVisible(true);

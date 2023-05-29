@@ -3,23 +3,29 @@ package com.adi.Views;
 import java.awt.Container;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import com.adi.Models.ClientModel;
+import com.adi.Models.OrderModel;
 import com.adi.Models.ProductModel;
-
+/**
+Clasa “OrdersDialog” este o fereastră de dialog care permite utilizatorului să introducă o comandă nouă în aplicație. Aceasta extinde clasa JDialog și conține elementele de interfață utilizator și logica asociată.
+    Atributele clasei includ:
+    Meniurile viewMenu și insertMenu pentru afișarea/opțiunile vizuale și inserarea de comenzi.
+    Etichetele clientIDLabel, productIDLabel și productQuantityLabel care afișează etichetele corespunzătoare câmpurilor de introducere.
+    Câmpurile de text clientIDTextField, productIDTextField și productQuantityTextField în care utilizatorul poate introduce informațiile necesare pentru comandă.
+    Lista jlistClients și jlistProducts care afișează clienții și produsele disponibile în aplicație.
+    Butonul submit care permite utilizatorului să introducă comanda.
+*/
 public class OrdersDialog extends JDialog{
-    
+
     JMenu viewMenu;
     JMenu insertMenu;
+
+    JMenu ordersMenu;
+
 
     JLabel clientIDLabel;
     JLabel productIDLabel;
@@ -28,11 +34,32 @@ public class OrdersDialog extends JDialog{
     JTextField clientIDTextField;
     JTextField productIDTextField;
     JTextField productQuantityTextField;
-
-    JList<ClientModel> jlistClients;
-    JList<ProductModel> jlistProducts;
+    public final int textAreaWidth = 100;
+    public final int textAreaHeight = 50;
+    public final int labelWidth = 100;
+    public final int labelHeight = 50;
 
     JButton submit;
+
+    ClientTableModel tableModelClients;
+    ProductTableModel tableModelProducts;
+
+    OrdersTableModel tableModelOrders;
+
+    JTable tableClients;
+    JTable tableProducts;
+
+    JTable tableOrders;
+
+    JScrollPane scrollPaneClients;
+    JScrollPane scrollPaneProducts;
+
+    JScrollPane scrollPaneOrders;
+
+
+    public JMenu getViewMenu() { return viewMenu; };
+
+    public JMenu getViewOrders() {return ordersMenu;};
     public OrdersDialog()
     {
         Container pane = this.getContentPane();
@@ -40,26 +67,48 @@ public class OrdersDialog extends JDialog{
         submit = new JButton("Insert order");
         viewMenu = new JMenu("View");
         insertMenu = new JMenu("Insert");
+        ordersMenu = new JMenu("Orders");
+
+        scrollPaneClients = new JScrollPane();
+        scrollPaneProducts = new JScrollPane();
+        scrollPaneOrders = new JScrollPane();
+        tableClients = new JTable();
+        tableProducts = new JTable();
+        tableOrders = new JTable();
+
+        scrollPaneClients.setBounds(0, 0, 250, 500);
+        scrollPaneProducts.setBounds(250, 0, 250, 500);
+        scrollPaneOrders.setBounds(0, 0, 500, 500);
+        tableClients.setBounds(0, 0, 250, 500);
+        tableProducts.setBounds(0, 0, 250, 500);
+        tableOrders.setBounds(0, 0, 500, 500);
+
+        scrollPaneClients.setViewportView(tableClients);
+        scrollPaneProducts.setViewportView(tableProducts);
+        scrollPaneOrders.setViewportView(tableOrders);
+
 
         JMenuBar jMenuBar = new JMenuBar();
         jMenuBar.add(insertMenu);
         jMenuBar.add(viewMenu);
+        jMenuBar.add(ordersMenu);
+
         this.setJMenuBar(jMenuBar);
         clientIDTextField = new JTextField();
         productIDTextField = new JTextField();
         productQuantityTextField = new JTextField();
-        clientIDTextField.setBounds(100, 0, 100, 50);
-        productIDTextField.setBounds(100, 50, 100, 50);
-        productQuantityTextField.setBounds(100, 100, 100, 50);
-        
-        submit.setBounds(100, 150, 100, 50);
+        clientIDTextField.setBounds(labelWidth, 0, textAreaWidth, textAreaHeight);
+        productIDTextField.setBounds(labelWidth, textAreaHeight, textAreaWidth, textAreaHeight);
+        productQuantityTextField.setBounds(labelWidth, textAreaHeight * 2, textAreaWidth, textAreaHeight);
+
+        submit.setBounds(100, 150, 150, 50);
 
         clientIDLabel = new JLabel("Client ID");
         productIDLabel = new JLabel("Product ID");
         productQuantityLabel = new JLabel("Quantity");
-        clientIDLabel.setBounds(0, 0, 100, 50);
-        productIDLabel.setBounds(0, 50, 100, 50);
-        productQuantityLabel.setBounds(0, 100, 100, 50);
+        clientIDLabel.setBounds(0, 0, labelWidth, labelHeight);
+        productIDLabel.setBounds(0, labelHeight, labelWidth, labelHeight);
+        productQuantityLabel.setBounds(0, labelHeight * 2, labelWidth, labelHeight);
 
         pane.add(clientIDTextField);
         pane.add(productIDTextField);
@@ -83,12 +132,31 @@ public class OrdersDialog extends JDialog{
             @Override
             public void menuSelected(MenuEvent e) {
                 pane.removeAll();
-                pane.add(jlistClients);
-                pane.add(jlistProducts);
+                pane.add(scrollPaneProducts);
+                pane.add(scrollPaneClients);
                 repaint();
-                
+
             }
-            
+
+        });
+
+        ordersMenu.addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent menuEvent) {
+                pane.removeAll();
+                pane.add(scrollPaneOrders);
+                repaint();
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent menuEvent) {
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent menuEvent) {
+
+            }
         });
 
         insertMenu.addMenuListener(new MenuListener() {
@@ -112,35 +180,43 @@ public class OrdersDialog extends JDialog{
                 pane.add(productQuantityTextField);
                 pane.add(clientIDLabel);
                 pane.add(productIDLabel);
-                pane.add(productQuantityLabel);   
+                pane.add(productQuantityLabel);
                 pane.add(submit);
-   
+
                 pane.repaint();
             }
-            
+
         });
-
-
         pane.add(submit);
+        pane.add(new JLabel("Orders"));
     }
 
     public void setClients(List<ClientModel> lstClients)
     {
-        jlistClients = new JList<ClientModel>(lstClients.toArray(new ClientModel[lstClients.size()]));
-        jlistClients.setBounds(0, 0, 500, 1000);
+        tableModelClients = new ClientTableModel(lstClients);
+        tableClients.setModel(tableModelClients);
+        repaint();
     }
 
     public void setProducts(List<ProductModel> lstProducts)
     {
-        jlistProducts = new JList<ProductModel>(lstProducts.toArray(new ProductModel[lstProducts.size()]));
-        jlistProducts.setBounds(500, 0, 500, 1000);
+        tableModelProducts = new ProductTableModel(lstProducts);
+        tableProducts.setModel(tableModelProducts);
+        repaint();
     }
 
+
+    public void setOrders(List<OrderModel> lstOrders)
+    {
+        tableModelOrders = new OrdersTableModel(lstOrders);
+        tableOrders.setModel(tableModelOrders);
+        repaint();
+    }
     public JButton getButtomSubmitCreate()
     {
         return submit;
     }
-    
+
 
     public int getClientID()
     {

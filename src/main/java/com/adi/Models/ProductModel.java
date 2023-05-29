@@ -1,7 +1,19 @@
 package com.adi.Models;
 
+/**
+ *Clasa Java "ProductModel" reprezintă o reprezentare a entității produs în cadrul aplicației. Aceasta conține variabilele și metodele necesare pentru gestionarea informațiilor despre un produs.
+ * <p>
+ * Principalele caracteristici ale clasei "ProductModel" sunt următoarele:
+ * <p>
+ * - Variabilele membru:
+ *   - `title`: reprezintă titlul produsului (de tip String).
+ *   - `price`: reprezintă prețul produsului (de tip Float).
+ *   - `description`: reprezintă descrierea produsului (de tip String).
+ *   - `quantity`: reprezintă cantitatea disponibilă a produsului (de tip int).
+ *   - `productID`: reprezintă ID-ul unic al produsului (de tip int).
+ */
 public class ProductModel {
-    
+
     public String title;
     public Float price;
     public String description;

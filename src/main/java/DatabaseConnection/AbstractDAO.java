@@ -10,6 +10,18 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**Clasa AbstractDAO este o clasă abstractă care implementează funcționalitatea de bază pentru operațiile de acces și manipulare a datelor într-o bază de date. Aceasta utilizează genericitate pentru a permite implementarea specifică a metodelor în clasele derivate.
+    Atributul type reprezintă tipul generic asociat clasei derivate și este obținut prin reflexie la construirea obiectului AbstractDAO. Acesta este utilizat pentru a construi și executa interogările SQL corespunzătoare.
+    Metoda abstractă getIdColumnName este implementată în clasele derivate pentru a specifica numele coloanei cheii primare din tabelul bazei de date asociat.
+    Metodele private createSelectAllQuery, createSelectQuery, createDeleteQuery, createUpdateQuery și createInsertQuery construiesc șirurile de caractere SQL necesare pentru diverse operații în funcție de structura clasei asociate.
+    Metoda update execută o interogare de actualizare în baza de date pentru un obiect dat ca argument. Aceasta construiește declarația SQL de actualizare și utilizează reflexia pentru a seta valorile parametrilor din interogare în funcție de valorile câmpurilor obiectului.
+    Metoda insert execută o interogare de inserare în baza de date pentru un obiect dat ca argument. Aceasta construiește declarația SQL de inserare și utilizează reflexia pentru a seta valorile parametrilor din interogare în funcție de valorile câmpurilor obiectului.
+    Metoda deleteById execută o interogare de ștergere în baza de date pentru un ID dat ca argument. Aceasta construiește declarația SQL de ștergere și setează parametrul ID-ului în interogare.
+    Metoda findById execută o interogare de selectare în baza de date pentru un ID dat ca argument și returnează obiectul corespunzător rezultatului interogării.
+    Metoda selectAll execută o interogare de selectare a tuturor înregistrărilor din tabela corespunzătoare clasei derivate și returnează o listă de obiecte.
+    Metoda createObjects transformă rezultatul unei interogări într-o listă de obiecte prin utilizarea reflexiei pentru a seta valorile câmpurilor obiectelor.
+    Clasa AbstractDAO oferă astfel funcționalitate generică pentru a interacționa cu baza de date pentru clasele derivate și poate fi extinsă și specializată în funcție de nevoile specifice ale aplicației.
+*/
 public abstract class AbstractDAO<T> {
 
     private final Class<T> type;
@@ -53,7 +65,7 @@ public abstract class AbstractDAO<T> {
     /*
      *  UPDATE table_name
         SET column1 = value1, column2 = value2, ...
-        WHERE condition;    
+        WHERE condition;
      */
     private String createUpdateQuery()
     {
@@ -92,7 +104,7 @@ public abstract class AbstractDAO<T> {
             setStatementValues(statement, fields, itemToUpdate, true);
             System.out.println(statement.toString());
             return statement.executeUpdate();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -115,7 +127,7 @@ public abstract class AbstractDAO<T> {
         Field[] fields = type.getDeclaredFields();
         sb.append(" ( ");
         int fieldIndex = 0;
-        for(fieldIndex = 0; fieldIndex < fields.length - 1; fieldIndex++) 
+        for(fieldIndex = 0; fieldIndex < fields.length - 1; fieldIndex++)
         {
             Field field = fields[fieldIndex];
             if(field.getName() != getIdColumnName())
@@ -152,7 +164,7 @@ public abstract class AbstractDAO<T> {
                 String fieldTypeClassName = fieldType.getTypeName();
                 if(fieldTypeClassName == "java.lang.String") {
                     String value = (String)readMethod.invoke(itemToInsert);
-                    statement.setString(fieldIndex + 1, value); 
+                    statement.setString(fieldIndex + 1, value);
                 }
 
                 if(fieldTypeClassName == "int") {
@@ -179,7 +191,7 @@ public abstract class AbstractDAO<T> {
             setStatementValues(statement, fields, itemToInsert, false);
             System.out.println(statement.toString());
             return statement.executeUpdate();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -190,7 +202,7 @@ public abstract class AbstractDAO<T> {
         return 0;
     }
 
-    public boolean deleteById(int id) 
+    public boolean deleteById(int id)
     {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -207,7 +219,7 @@ public abstract class AbstractDAO<T> {
             ConnectionFactory.close(statement);
             ConnectionFactory.close(connection);
         }
-        
+
         return false;
     }
 
@@ -219,7 +231,7 @@ public abstract class AbstractDAO<T> {
         try {
             connection = ConnectionFactory.getInstance().createConnection();
             statement = connection.prepareStatement(query);
-            statement.setInt(1, id); //Blablabla ... WHERE Field = ? 
+            statement.setInt(1, id); //Blablabla ... WHERE Field = ?
             //INSERT INTO ProductModel ( title , price , description )  VALUES  (  ? , 15.5 , ?  )
             /*
              * statement.setFloat(2, 15.5);
@@ -234,7 +246,7 @@ public abstract class AbstractDAO<T> {
             ConnectionFactory.close(statement);
             ConnectionFactory.close(connection);
         }
-        
+
         return null;
     }
 
@@ -251,7 +263,7 @@ public abstract class AbstractDAO<T> {
             statement = connection.prepareStatement(selectAllQuery);
             resultSet = statement.executeQuery();
             return createObjects(resultSet);
-        } 
+        }
         catch( Exception e) {
             e.printStackTrace();
         } finally {

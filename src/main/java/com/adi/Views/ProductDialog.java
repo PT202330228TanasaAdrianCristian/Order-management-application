@@ -3,20 +3,14 @@ package com.adi.Views;
 import java.awt.Container;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import com.adi.Models.ProductModel;
 
 public class ProductDialog extends JDialog{
-    
+
 
     public JButton buttonOpenCreate;
     public JButton buttonOpenEdit;
@@ -34,7 +28,7 @@ public class ProductDialog extends JDialog{
     public JTextField descriptionEditTextField;
     public JTextField priceEditTextField;
     public JButton submitEditButton;
- 
+
     public JButton submitDeleteButton;
 
     public JLabel titleLabel;
@@ -42,14 +36,27 @@ public class ProductDialog extends JDialog{
     public JLabel priceLabel;
     public JLabel idLabel;
 
-    public JList<ProductModel> jlistProducts;
-
     public JMenuBar menuBar;
+    public JMenu viewMenu;
+
+    public CustomTableModel<ProductModel> tableProductModel;
+
+    public JScrollPane scrollPane;
+
+    public JTable tableProducts;
+
+    public final int textAreaWidth = 100;
+    public final int textAreaHeight = 50;
+    public final int labelWidth = 100;
+    public final int labelHeight = 50;
+
+    public JMenu getViewMenu() { return viewMenu; }
 
     public void setProducts(List<ProductModel> lstProducts)
     {
-        jlistProducts = new JList<ProductModel>(lstProducts.toArray(new ProductModel[lstProducts.size()]));
-        jlistProducts.setBounds(0, 0, 500, 500);
+        tableProductModel = new ProductTableModel(lstProducts);
+        tableProducts.setModel(tableProductModel);
+        this.repaint();
     }
 
     public JButton getButtonSubmitCreate() {
@@ -100,7 +107,7 @@ public class ProductDialog extends JDialog{
     }
     /*
      * Press on the menu item and dynamically create the buttons and inputs for each operation
-     *  
+     *
      *  Clicking on openCreate will add to the contentPane all the elements neccesary for completing a createOperation, openEdit will add the edit componentsm, etc...
      */
 
@@ -110,16 +117,24 @@ public class ProductDialog extends JDialog{
 
         submitCreateButton = new JButton("Create"); //de pus set bounds si pt celelalte ferestre
         submitDeleteButton = new JButton("Delete");
-        submitDeleteButton.setBounds(100,100, 50, 50);
+        submitDeleteButton.setBounds(100,100, textAreaWidth, textAreaHeight);
         submitEditButton = new JButton("Edit");
+
+        tableProducts = new JTable();
+        scrollPane = new JScrollPane();
+
+        tableProducts.setBounds(0,0, 500, 500);
+        scrollPane.setBounds(0, 0, 500, 500);
+
+        scrollPane.setViewportView(tableProducts);
 
         //Menu bar
         menuBar = new JMenuBar();
         JMenu createMenu = new JMenu("Create");
         JMenu editMenu = new JMenu("Edit");
         JMenu deleteMenu = new JMenu("Delete");
-        JMenu viewMenu = new JMenu("View");
-    
+        viewMenu = new JMenu("View");
+
         menuBar.add(createMenu);
         menuBar.add(editMenu);
         menuBar.add(deleteMenu);
@@ -133,11 +148,12 @@ public class ProductDialog extends JDialog{
         quantityCreateTextField = new JTextField();
         submitCreateButton = new JButton("Submit create");
 
-        titleCreateTextField.setBounds(100, 0, 50, 50);
-        descriptionCreateTextField.setBounds(100, 50, 50, 50);
-        priceCreateTextField.setBounds(100, 100, 50, 50);
-        submitCreateButton.setBounds(100, 150, 50, 50);
-        quantityCreateTextField.setBounds(100, 200, 50, 50);
+        titleCreateTextField.setBounds(labelWidth, 0, textAreaWidth, textAreaHeight);
+        descriptionCreateTextField.setBounds(labelWidth, textAreaHeight, textAreaWidth, textAreaHeight);
+        priceCreateTextField.setBounds(labelWidth, textAreaHeight * 2, textAreaWidth, textAreaHeight);
+        quantityCreateTextField.setBounds(labelWidth, textAreaHeight * 3, textAreaWidth, textAreaHeight);
+        submitCreateButton.setBounds(labelWidth, textAreaHeight * 4, textAreaWidth, textAreaHeight);
+
 
         titleEditTextField = new JTextField();
         descriptionEditTextField = new JTextField();
@@ -146,30 +162,34 @@ public class ProductDialog extends JDialog{
         submitEditButton = new JButton("Submit edit");
         idEditTextField = new JTextField();
 
-        titleEditTextField.setBounds(100, 0, 50, 50);
-        descriptionEditTextField.setBounds(100, 50, 50, 50);
-        priceEditTextField.setBounds(100, 100, 50, 50);
-        submitEditButton.setBounds(100, 150, 50, 50);
-        idEditTextField.setBounds(150, 150, 50, 50);
-        quantityEditTextField.setBounds(100, 200, 50, 50);
+        titleEditTextField.setBounds(labelWidth, 0, textAreaWidth, textAreaHeight);
+        descriptionEditTextField.setBounds(labelWidth, textAreaHeight, textAreaWidth, textAreaHeight);
+        priceEditTextField.setBounds(labelWidth, textAreaHeight * 2, textAreaWidth, textAreaHeight);
+        quantityEditTextField.setBounds(labelWidth, textAreaHeight * 3, textAreaWidth, textAreaHeight);
+        idEditTextField.setBounds(labelWidth, textAreaHeight * 4, textAreaWidth, textAreaHeight);
+        submitEditButton.setBounds(labelWidth, textAreaHeight * 5, textAreaWidth, textAreaHeight);
+
 
 
         titleLabel = new JLabel("title");
         descriptionLabel = new JLabel("description");
         priceLabel = new JLabel("price");
+        idLabel = new JLabel(" ID");
         JLabel quantityLabel = new JLabel("Quantity");
 
-        titleLabel.setBounds(0, 0, 50, 50);
-        descriptionLabel.setBounds(0, 50, 50, 50);
-        priceLabel.setBounds(0, 100, 50, 50);
-        quantityLabel.setBounds(0, 200, 50, 50);
+        titleLabel.setBounds(0, 0, labelWidth, labelHeight);
+        descriptionLabel.setBounds(0, labelHeight, labelWidth, labelHeight);
+        priceLabel.setBounds(0, labelHeight * 2, labelWidth, labelHeight);
+        quantityLabel.setBounds(0, labelHeight * 3, labelWidth, labelHeight);
+        idLabel.setBounds(0, labelHeight * 4, labelWidth, labelHeight);
+
 
         createMenu.addMenuListener(new MenuListener() {
             @Override
             public void menuSelected(MenuEvent e) {
                 Container pane = getContentPane();
                 pane.removeAll(); //Delete all the elements
-                
+
                 pane.add(titleCreateTextField);
                 pane.add(descriptionCreateTextField);
                 pane.add(priceCreateTextField);
@@ -180,7 +200,7 @@ public class ProductDialog extends JDialog{
                 pane.add(descriptionLabel);
                 pane.add(priceLabel);
                 pane.add(quantityLabel);
-                //Add items for create 
+                //Add items for create
                 repaint();
             }
 
@@ -192,8 +212,8 @@ public class ProductDialog extends JDialog{
             @Override
             public void menuDeselected(MenuEvent e) {
                 // TODO Auto-generated method stub
-            } 
-        }); 
+            }
+        });
 
         editMenu.addMenuListener(new MenuListener() {
 
@@ -211,7 +231,7 @@ public class ProductDialog extends JDialog{
             public void menuSelected(MenuEvent e) {
                 Container pane = getContentPane();
                 pane.removeAll(); //Delete all the elements
-                
+
                 pane.add(titleEditTextField);
                 pane.add(descriptionEditTextField);
                 pane.add(priceEditTextField);
@@ -223,10 +243,11 @@ public class ProductDialog extends JDialog{
                 pane.add(descriptionLabel);
                 pane.add(priceLabel);
                 pane.add(quantityLabel);
+                pane.add(idLabel);
 
-                //Add items for create 
+                //Add items for create
                 repaint();
-            }  
+            }
         });
 
         viewMenu.addMenuListener(new MenuListener() {
@@ -245,10 +266,10 @@ public class ProductDialog extends JDialog{
             public void menuSelected(MenuEvent e) {
                 // TODO Auto-generated method stub
                 pane.removeAll();
-                pane.add(jlistProducts);
+                pane.add(scrollPane);
                 repaint();
             }
-            
+
         });
 
         deleteMenu.addMenuListener(new MenuListener() {
@@ -268,11 +289,12 @@ public class ProductDialog extends JDialog{
                 // TODO Auto-generated method stub
                 pane.removeAll();
                 pane.add(idEditTextField);
+                pane.add(idLabel);
                 pane.add(submitDeleteButton);
                 pane.repaint();
             }
-            
+
         });
-    
+
     }
 }

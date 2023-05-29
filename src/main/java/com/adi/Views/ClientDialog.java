@@ -1,26 +1,35 @@
 package com.adi.Views;
 
-import java.awt.Container;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import com.adi.Models.ClientModel;
 
+/**
+ * Clasa "ClientDialog" este o clasă de vizualizare (view) în cadrul unei aplicații. Aceasta extinde clasa "JDialog" din biblioteca Swing și reprezintă o fereastră de dialog pentru interacțiunea cu informațiile despre clienți.
+ * Principalele elemente ale clasei "ClientDialog" sunt următoarele:
+ * Butoanele:
+ * buttonOpenCreate, buttonOpenEdit, buttonOpenDelete: reprezintă butoane pentru deschiderea ferestrelor de creare, editare și ștergere a clienților.
+ * Câmpurile de text:
+ * emailCreateTextField, nameCreateTextField, addressCreateTextField: reprezintă câmpuri de text pentru introducerea informațiilor despre un nou client în procesul de creare.
+ * idEditTextField, emailEditTextField, nameEditTextField, addressEditTextField: reprezintă câmpuri de text pentru introducerea informațiilor despre un client existent în procesul de editare.
+ */
+
 
 public class ClientDialog extends JDialog{
-    
+
+    public JMenu viewMenu;
+
+    public CustomTableModel<ClientModel> tableModel;
+
     public JButton buttonOpenCreate;
-    public JButton buttonOpenEdit;
-    public JButton buttonOpenDelete;
+    public JButton buttonGetClientById;
 
     public JTextField emailCreateTextField;
     public JTextField nameCreateTextField;
@@ -32,7 +41,7 @@ public class ClientDialog extends JDialog{
     public JTextField nameEditTextField;
     public JTextField addressEditTextField;
     public JButton submitEditButton;
- 
+
     public JButton submitDeleteButton;
 
     public JLabel idLabel;
@@ -40,17 +49,20 @@ public class ClientDialog extends JDialog{
     public JLabel nameLabel;
     public JLabel addressLabel;
 
-    public JList<ClientModel> jlistClients;
+    public JScrollPane scrollPane;
 
+    public final int textAreaWidth = 100;
+    public final int textAreaHeight = 50;
+    public final int labelWidth = 100;
+    public final int labelHeigh = 50;
+
+    public JTable tableClients;
     public void setClients(List<ClientModel> clients)
     {
-        jlistClients = new JList<ClientModel>(clients.toArray(new ClientModel[clients.size()]));
-        
+        tableModel = new ClientTableModel(clients);
+        tableClients.setModel(tableModel);
+        this.repaint();
     }
-
-    //private int xCoordianteEmailInput;
-    //private int yCoordinateEmailInput;
-    //private int xNameEdi
 
     public JButton getButtonSubmitCreate() {
         return submitCreateButton;
@@ -91,10 +103,12 @@ public class ClientDialog extends JDialog{
         return addressCreateTextField.getText();
     }
 
+    public JMenu getMenuView() { return viewMenu;}
+
     public JMenuBar menuBar;
     /*
      * Press on the menu item and dynamically create the buttons and inputs for each operation
-     *  
+     *
      *  Clicking on openCreate will add to the contentPane all the elements neccesary for completing a createOperation, openEdit will add the edit componentsm, etc...
      */
 
@@ -102,20 +116,27 @@ public class ClientDialog extends JDialog{
     {
         Container pane = getContentPane();
 
+        scrollPane = new JScrollPane();
+        tableClients = new JTable();
+        tableClients.setBounds(0,0, 500, 500);
+        scrollPane.setBounds(0, 0, 500, 500);
+
+        scrollPane.setViewportView(tableClients);
+
         buttonOpenCreate = new JButton("Tesin this shit");
         buttonOpenCreate.setBounds(0, 0, 50, 50);
 
         submitEditButton = new JButton("Edit");
         submitDeleteButton = new JButton("Delete");
-        submitDeleteButton.setBounds(100,100, 50, 50);
+        submitDeleteButton.setBounds(100,100, 150, 50);
 
         //Menu bar
         menuBar = new JMenuBar();
         JMenu createMenu = new JMenu("Create");
         JMenu editMenu = new JMenu("Edit");
         JMenu deleteMenu = new JMenu("Delete");
-        JMenu viewMenu = new JMenu("View");
-    
+        viewMenu = new JMenu("View");
+
         menuBar.add(createMenu);
         menuBar.add(editMenu);
         menuBar.add(deleteMenu);
@@ -129,10 +150,11 @@ public class ClientDialog extends JDialog{
         addressCreateTextField = new JTextField();
         submitCreateButton = new JButton("Create");
 
-        emailCreateTextField.setBounds(100, 0, 50, 50);
-        nameCreateTextField.setBounds(100, 50, 50, 50);
-        addressCreateTextField.setBounds(100, 100, 50, 50);
-        submitCreateButton.setBounds(100, 150, 50, 50);
+        //Incepe sa desenzi de la demnsiunea label-ului (fiindca este in stanga text field-ului)
+        emailCreateTextField.setBounds(labelWidth, 0, textAreaWidth, textAreaHeight);
+        nameCreateTextField.setBounds(labelWidth, textAreaHeight, textAreaWidth, textAreaHeight);
+        addressCreateTextField.setBounds(labelWidth, textAreaHeight * 2, textAreaWidth, textAreaHeight);
+        submitCreateButton.setBounds(labelWidth, textAreaHeight * 3, textAreaWidth, textAreaHeight);
 
         idEditTextField = new JTextField();
         emailEditTextField = new JTextField();
@@ -141,22 +163,21 @@ public class ClientDialog extends JDialog{
         submitEditButton = new JButton("Edit");
 
 
-        emailEditTextField.setBounds(100, 0, 50, 50);
-        nameEditTextField.setBounds(100, 50, 50, 50);
-        addressEditTextField.setBounds(100, 100, 50, 50);
-        submitEditButton.setBounds(100, 150, 50, 50);
-        idEditTextField.setBounds(100, 200, 50 , 50);
-
+        emailEditTextField.setBounds(labelWidth, 0, textAreaWidth, textAreaHeight);
+        nameEditTextField.setBounds(labelWidth, textAreaHeight, textAreaWidth, textAreaHeight);
+        addressEditTextField.setBounds(labelWidth, textAreaHeight * 2, textAreaWidth, textAreaHeight);
+        idEditTextField.setBounds(labelWidth, textAreaHeight * 3, textAreaWidth, textAreaHeight);
+        submitEditButton.setBounds(labelWidth, textAreaHeight * 4, textAreaWidth, textAreaHeight);
 
         emailLabel = new JLabel("Email");
         nameLabel = new JLabel("Name");
         addressLabel = new JLabel("Address");
         idLabel = new JLabel("ID");
 
-        emailLabel.setBounds(0, 0, 50, 50);
-        nameLabel.setBounds(0, 50, 50, 50);
-        addressLabel.setBounds(0, 100, 50, 50);
-        idLabel.setBounds(0, 200, 50, 50);
+        emailLabel.setBounds(0, 0, labelWidth, labelHeigh);
+        nameLabel.setBounds(0, labelHeigh, labelWidth, labelHeigh);
+        addressLabel.setBounds(0, labelHeigh * 2, labelWidth, labelHeigh);
+        idLabel.setBounds(0, labelHeigh * 3, labelWidth, labelHeigh);
 
         createMenu.addMenuListener(new MenuListener() {
             @Override
@@ -167,7 +188,7 @@ public class ClientDialog extends JDialog{
             public void menuSelected(MenuEvent e) {
                 Container pane = getContentPane();
                 pane.removeAll(); //Delete all the elements
-                
+
                 pane.add(emailCreateTextField);
                 pane.add(nameCreateTextField);
                 pane.add(addressCreateTextField);
@@ -176,10 +197,10 @@ public class ClientDialog extends JDialog{
                 pane.add(emailLabel);
                 pane.add(nameLabel);
                 pane.add(addressLabel);
-                //Add items for create 
+                //Add items for create
                 repaint();
-            } 
-        }); 
+            }
+        });
 
         viewMenu.addMenuListener(new MenuListener() {
 
@@ -197,11 +218,10 @@ public class ClientDialog extends JDialog{
             public void menuSelected(MenuEvent e) {
                 // TODO Auto-generated method stub
                 pane.removeAll();
-                jlistClients.setBounds(0, 0, 500, 500);
-                pane.add(jlistClients);
+                pane.add(scrollPane);
                 pane.repaint();
             }
-            
+
         });
 
         editMenu.addMenuListener(new MenuListener() {
@@ -220,7 +240,7 @@ public class ClientDialog extends JDialog{
             public void menuSelected(MenuEvent e) {
                 Container pane = getContentPane();
                 pane.removeAll(); //Delete all the elements
-                
+
                 pane.add(emailEditTextField);
                 pane.add(nameEditTextField);
                 pane.add(addressEditTextField);
@@ -231,9 +251,9 @@ public class ClientDialog extends JDialog{
                 pane.add(nameLabel);
                 pane.add(addressLabel);
                 pane.add(idLabel);
-                //Add items for create 
+                //Add items for create
                 repaint();
-            }  
+            }
         });
 
         deleteMenu.addMenuListener(new MenuListener() {
@@ -253,11 +273,12 @@ public class ClientDialog extends JDialog{
                 // TODO Auto-generated method stub
                 pane.removeAll();
                 pane.add(idEditTextField);
+                pane.add(idLabel);
                 pane.add(submitDeleteButton);
                 pane.repaint();
             }
-            
+
         });
-    
+
     }
 }
